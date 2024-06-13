@@ -4,6 +4,13 @@
 
 - Python 3.x
 - pip (gestor de paquetes de Python)
+- Entorno virtual (opcional pero recomendado)
+
+# Creacion y activacion de entorno virtual
+
+python -m venv myenv
+
+source myenv/bin/activate
 
 # Instalación de dependencias
 
