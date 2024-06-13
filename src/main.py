@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.integrate import odeint
+from math import exp, sqrt, sin, cos
 
 # Parámetros del sistema masa-resorte
 m = 1  # masa
-k = 0.5  # coeficiente de elasticidad
-b = 0.5  # friccion
+k = 1  # coeficiente de elasticidad
+b = 1  # friccion
 f = 1  # fuerza externa
 x0 = 0.0  # posición inicial
 v0 = 0.0  # velocidad inicial
@@ -18,12 +18,12 @@ v_values = []
 x_values = []
 
 # Variables para almacenar los resultados de heun
-heun_t_values = np.arange(0, t_max, h)
 heun_v_values = []
 heun_x_values = []
 
 # Variables para almacenar los resultados analíticos
-analytic_t_values = np.arange(0, t_max, h)
+analytic_v_values = []
+analytic_x_values = []
 
 # v'(t)
 def acceleration(x, v):
@@ -45,7 +45,7 @@ def euler(x, v):
 def heun(x, v):
     heun_x_values.clear()
     heun_v_values.clear()
-    for t in heun_t_values:
+    for t in t_values:
         heun_x_values.append(x)
         heun_v_values.append(v)
 
@@ -57,17 +57,17 @@ def heun(x, v):
         x += h * (v + v_aux) / 2
         v += h * (a + a_aux) / 2
 
-# Solución analítica
-def system_of_equations(y, t):
-    x, v = y
-    x_prime = v
-    v_prime = acceleration(x, v)
-    return [x_prime, v_prime]
-
+# Solución analítica para k = b = m = 1, F(t) = 1 para t>= 0, x(0)=0, v(0)=0
 def analytical_solution(t_values):
-    analytic_y0 = [x0, v0]
-    analytic_solution = odeint(system_of_equations, analytic_y0, t_values)
-    return analytic_solution.T
+    x= 0
+    v= 0
+    analytic_x_values.clear()
+    analytic_v_values.clear()
+    for t in t_values:
+        x = 1 - (sqrt(3) / 3) * exp(-t / 2) * sin(sqrt(3) / 2 * t) - exp(-t / 2) * cos(sqrt(3) / 2 * t)
+        v = (sqrt(12) / 3) * exp(-t / 2) * sin(sqrt(3) / 2 * t)
+        analytic_x_values.append(x)
+        analytic_v_values.append(v)
 
 # Graficar los resultados
 def plot(t, x, v, flag):
@@ -86,19 +86,29 @@ def plot(t, x, v, flag):
     else:
         plt.savefig("img/mygraph2.png")
 
-
-def plot_equal(t, x, v, t1, x1, v1, t2, x2, v2):
+#plotea la Euler y Heun con los mismos parametros
+def plot_equal(t, x, v, x1, v1):
     plt.clf()
     plt.plot(t, x, label="Posición Euler(m)")
     plt.plot(t, v, label="Velocidad Euler(m/s)")
-    plt.plot(t1, x1, label="Posición Heun(m)")
-    plt.plot(t1, v1, label="Velocidad Heun(m/s)")
-    plt.plot(t2, x2, label="Posición Analitic(m)")
-    plt.plot(t2, v2, label="Velocidad Analitic(m)")
+    plt.plot(t, x1, label="Posición Heun(m)")
+    plt.plot(t, v1, label="Velocidad Heun(m/s)")
     plt.xlabel("Tiempo (s)")
     plt.legend(fontsize='x-small', loc='lower right', framealpha=0.3)
     plt.title("Simulación del Modelo Masa-Resorte")
     plt.savefig("img/mygraph3.png")
+
+#plotea la analitica y la Heun
+def plot_analitic(t, x, v, x1, v1):
+    plt.clf()
+    plt.plot(t, x, label="Posición Heun(m)")
+    plt.plot(t, v, label="Velocidad Heun(m/s)")
+    plt.plot(t, x1, label="Posición Analitic(m)")
+    plt.plot(t, v1, label="Velocidad Analitic(m)")
+    plt.xlabel("Tiempo (s)")
+    plt.legend(fontsize='x-small', loc='lower right', framealpha=0.3)
+    plt.title("Simulación del Modelo Masa-Resorte")
+    plt.savefig("img/mygraph2.png")
 
 
 def main():
@@ -106,19 +116,19 @@ def main():
     x = x0
     v = x0
 
-    analytic_x_values, analytic_v_values = analytical_solution(analytic_t_values)
+    analytical_solution(t_values)
 
     euler(x, v)
     plot(t_values, x_values, v_values, 0)
 
     heun(x, v)
-    plot(heun_t_values, heun_x_values, heun_v_values, 1)
-
+    plot(t_values, heun_x_values, heun_v_values, 1)
 
     plot_equal(
-        t_values, x_values, v_values, heun_t_values, heun_x_values, heun_v_values,
-        analytic_t_values, analytic_x_values, analytic_v_values
+        t_values, x_values, v_values, heun_x_values, heun_v_values
     )
+
+    plot_analitic(t_values, heun_x_values,heun_v_values,analytic_x_values,analytic_v_values)
 
 
 if __name__ == "__main__":
