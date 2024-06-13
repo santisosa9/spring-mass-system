@@ -1,16 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from math import exp, sqrt, sin, cos
+from config.config import read_config
+
+# Leer configuración desde config.properties
+params = read_config()
 
 # Parámetros del sistema masa-resorte
-m = 1  # masa
-k = 1  # coeficiente de elasticidad
-b = 1  # friccion
-f = 1  # fuerza externa
-x0 = 0.0  # posición inicial
-v0 = 0.0  # velocidad inicial
-t_max = 25  # tiempo de simulacion
-h = 0.1  # paso de integracion
+m = params["m"]
+k = params["k"]
+b = params["b"]
+f = params["f"]
+x0 = params["x0"]
+v0 = params["v0"]
+t_max = params["t_max"]
+h = params["h"]
 
 # Variables para almacenar los resultados de euler
 t_values = np.arange(0, t_max, h)
